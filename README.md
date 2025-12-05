@@ -1,8 +1,3 @@
-Here is your text rewritten cleanly in **README.md style**, properly formatted, structured, and professional.
-You can **copy-paste this directly into your README**.
-
----
-
 #  Movie Rental System
 
 ##  Overview
@@ -112,7 +107,7 @@ You should now see JSON movie data.
 
 ---
 
-## 🧰 Common SQL Operations
+##  Common SQL Operations
 
 ### **Add a movie**
 
