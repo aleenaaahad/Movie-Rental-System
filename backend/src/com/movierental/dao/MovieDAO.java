@@ -21,7 +21,7 @@ public class MovieDAO {
                     rs.getString("Title"),
                     rs.getString("Genre"),
                     rs.getInt("Year"),
-                    rs.getDouble("Rating"),
+                    rs.getString("Rating"),
                     rs.getDouble("DefaultPrice"),
                     rs.getString("Description")
                 ));

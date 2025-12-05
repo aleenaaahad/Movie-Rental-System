@@ -5,13 +5,13 @@ public class Movie {
     private String title;
     private String genre;
     private int year;
-    private double rating;
+    private String rating;
     private double defaultPrice;
     private String description;
 
     public Movie() {}
 
-    public Movie(int movieID, String title, String genre, int year, double rating,
+    public Movie(int movieID, String title, String genre, int year, String rating,
                  double defaultPrice, String description) {
         this.movieID = movieID;
         this.title = title;
@@ -26,7 +26,7 @@ public class Movie {
     public String getTitle() { return title; }
     public String getGenre() { return genre; }
     public int getYear() { return year; }
-    public double getRating() { return rating; }
+    public String getRating() { return rating; }
     public double getDefaultPrice() { return defaultPrice; }
     public String getDescription() { return description; }
 }
