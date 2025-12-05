@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { Film, Mail, Lock, User, Eye, EyeOff, LogIn, UserPlus } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+
 
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+  const navigate = useNavigate();
+
   const [loginForm, setLoginForm] = useState({
     username: '',
     password: ''
@@ -24,10 +27,8 @@ const LoginPage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
     setLoading(true);
-
+ navigate("/movies");
     // Validate
     if (!loginForm.username || !loginForm.password) {
       setError('Please fill in all fields');
