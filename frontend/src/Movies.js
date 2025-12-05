@@ -1,27 +1,42 @@
 import React, { useState, useEffect } from "react";
-import { Search, ShoppingCart, Calendar, DollarSign, Star, X } from "lucide-react";
+import { Search, ShoppingCart, Calendar, DollarSign, X } from "lucide-react";
 
 const MovieRentalSystem = () => {
 
-  // Fetch from backend instead of hard-coded movies
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [checkoutForm, setCheckoutForm] = useState({
+    paymentMethod: 'Credit Card',
+    cardNumber: '',
+    expiryDate: '',
+    cvv: ''
+  });
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3000);
+  };
+
+
 
   // Fetch data from Java backend (Tomcat + JDBC)
   useEffect(() => {
-    fetch("http://localhost:8080")
+    fetch("/movie-renting/api/movies")
       .then((res) => res.json())
       .then((data) => {
-        // Map backend MovieID -> id to match your frontend logic
+        console.log("MOVIES FROM BACKEND:", data);
         const formatted = data.map((m) => ({
-          id: m.movieID,               // from DB (MovieID)
+          id: m.movieID,
           title: m.title,
           genre: m.genre,
           year: m.year,
           rating: m.rating,
-          price: m.defaultPrice,        // DB column DefaultPrice
+          price: m.defaultPrice,
           description: m.description,
         }));
+        console.log(formatted);
+
         setMovies(formatted);
         setLoading(false);
       })
@@ -42,6 +57,10 @@ const MovieRentalSystem = () => {
 
   // Add to cart
   const addToCart = (movie) => {
+    if (cart.length >= 5) {
+      alert("You cannot rent more than 5 movies at a time!");
+      return;
+    }
     if (!cart.find((item) => item.id === movie.id)) {
       setCart([...cart, { ...movie, rentalDays: 5 }]);
     }
@@ -57,6 +76,35 @@ const MovieRentalSystem = () => {
         item.id === id ? { ...item, rentalDays: parseInt(days) } : item
       )
     );
+  };
+  const handleCheckout = () => {
+    if (cart.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
+    setShowCart(false);
+    setShowCheckout(true);
+    showToast("Checkout completed successfully!");
+  };
+
+  const handleCompleteCheckout = (e) => {
+    e.preventDefault();
+
+    // Validate payment info
+    if (checkoutForm.paymentMethod === 'Credit Card') {
+      if (!checkoutForm.cardNumber || !checkoutForm.expiryDate || !checkoutForm.cvv) {
+        alert('Please fill in all payment details');
+        return;
+      }
+    }
+    setCart([]);
+    setShowCheckout(false);
+    setCheckoutForm({
+      paymentMethod: 'Credit Card',
+      cardNumber: '',
+      expiryDate: '',
+      cvv: ''
+    });
   };
 
   // Filtering logic
@@ -86,6 +134,16 @@ const MovieRentalSystem = () => {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Movie Renting System</h1>
           <button
+            onClick={() => {
+              setCart([]);
+              window.location.href = "/login";
+            }}
+            className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition"
+          >
+            Logout
+          </button>
+
+          <button
             onClick={() => setShowCart(!showCart)}
             className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition"
           >
@@ -113,11 +171,10 @@ const MovieRentalSystem = () => {
               <button
                 key={genre}
                 onClick={() => setSelectedGenre(genre)}
-                className={`px-4 py-2 rounded-lg transition ${
-                  selectedGenre === genre
-                    ? "bg-red-600 text-white"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                }`}
+                className={`px-4 py-2 rounded-lg transition ${selectedGenre === genre
+                  ? "bg-red-600 text-white"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  }`}
               >
                 {genre}
               </button>
@@ -141,7 +198,6 @@ const MovieRentalSystem = () => {
                 <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
                   <span>{movie.genre}</span>
                   <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
                     <span>{movie.rating}</span>
                   </div>
                 </div>
@@ -181,8 +237,7 @@ const MovieRentalSystem = () => {
                 <span>{selectedMovie.year}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                <span>{selectedMovie.rating}/10</span>
+                <span>{selectedMovie.rating}</span>
               </div>
               <div className="flex items-center gap-2">
                 <DollarSign className="w-4 h-4" />
@@ -202,7 +257,7 @@ const MovieRentalSystem = () => {
           </div>
         </div>
       )}
-
+      {/* Cart Sidebar */}
       {/* Cart Sidebar */}
       {showCart && (
         <div
@@ -267,7 +322,11 @@ const MovieRentalSystem = () => {
                       ${totalPrice.toFixed(2)}
                     </span>
                   </div>
-                  <button className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-bold">
+
+                  <button
+                    onClick={handleCheckout}
+                    className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-bold"
+                  >
                     Proceed to Checkout
                   </button>
                 </div>
@@ -276,7 +335,96 @@ const MovieRentalSystem = () => {
           </div>
         </div>
       )}
+
+      {showCheckout && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-40">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-lg">
+            <h2 className="text-2xl font-bold mb-4">Checkout</h2>
+
+            <form onSubmit={handleCompleteCheckout} className="space-y-4">
+              <div>
+                <label className="block mb-1">Payment Method</label>
+                <select
+                  value={checkoutForm.paymentMethod}
+                  onChange={(e) =>
+                    setCheckoutForm({ ...checkoutForm, paymentMethod: e.target.value })
+                  }
+                  className="w-full p-2 bg-gray-700 rounded"
+                >
+                  <option>Credit Card</option>
+                  <option>Debit Card</option>
+                  <option>Cash</option>
+                </select>
+              </div>
+
+              {checkoutForm.paymentMethod !== "Cash" && (
+                <>
+                  <div>
+                    <label className="block mb-1">Card Number</label>
+                    <input
+                      type="text"
+                      value={checkoutForm.cardNumber}
+                      onChange={(e) =>
+                        setCheckoutForm({ ...checkoutForm, cardNumber: e.target.value })
+                      }
+                      className="w-full p-2 bg-gray-700 rounded"
+                    />
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="w-1/2">
+                      <label className="block mb-1">Expiry Date</label>
+                      <input
+                        type="text"
+                        placeholder="MM/YY"
+                        value={checkoutForm.expiryDate}
+                        onChange={(e) =>
+                          setCheckoutForm({ ...checkoutForm, expiryDate: e.target.value })
+                        }
+                        className="w-full p-2 bg-gray-700 rounded"
+                      />
+                    </div>
+
+                    <div className="w-1/2">
+                      <label className="block mb-1">CVV</label>
+                      <input
+                        type="text"
+                        value={checkoutForm.cvv}
+                        onChange={(e) =>
+                          setCheckoutForm({ ...checkoutForm, cvv: e.target.value })
+                        }
+                        className="w-full p-2 bg-gray-700 rounded"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <button
+                type="submit"
+                className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-bold"
+              >
+                Complete Checkout
+              </button>
+            </form>
+
+            <button
+              onClick={() => setShowCheckout(false)}
+              className="mt-4 w-full bg-gray-700 hover:bg-gray-600 py-2 rounded-lg"
+            >
+              Cancel
+            </button>
+          </div>
+          {toastMessage && (
+            <div className="fixed bottom-6 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-fade-in">
+              {toastMessage}
+            </div>
+          )}
+
+        </div>
+      )}
     </div>
+
   );
 };
 
