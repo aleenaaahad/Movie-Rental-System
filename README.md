@@ -1,70 +1,140 @@
-# Getting Started with Create React App
+Here is your text rewritten cleanly in **README.md style**, properly formatted, structured, and professional.
+You can **copy-paste this directly into your README**.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+---
 
-## Available Scripts
+#  Movie Rental System
 
-In the project directory, you can run:
+##  Overview
 
-### `npm start`
+A simple **Movie Rental Management System** that allows customers to browse and rent movies.
+The application includes:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+* Java Servlet–based backend
+* MySQL relational database
+* Tomcat application server
+* React frontend (optional)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+##  Technologies Used
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### **Backend**
 
-### `npm run build`
+* **Java Servlets**
+* **Apache Tomcat 9**
+* **MySQL Server**
+* **Gson** (JSON serialization)
+* **Manual `javac` compilation**
+* **JDBC**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### **Frontend (Optional)**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+* **Node.js + npm**
+* React.js
+* TailwindCSS
+* Fetch API
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### **Required JARs (inside `WEB-INF/lib/`)**
 
-### `npm run eject`
+* `mysql-connector-j.jar`
+* `gson.jar`
+* `servlet-api.jar`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+##  2. Installation & Setup Instructions
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### **1. Set up the database**
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Open **MySQL Workbench** or MySQL terminal and run:
 
-## Learn More
+```sql
+SOURCE C:/Users/16692/Downloads/MovieRental_Local.session (1).sql;
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+This will create:
 
-### Code Splitting
+* `MovieRentalDB`
+* All tables (Movies, Customers, Rentals, etc.)
+* Triggers
+* Views
+* Sample data
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+### **2. Configure Database Connection**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+In `DatabaseConnection.java`, set:
 
-### Making a Progressive Web App
+```java
+URL = "jdbc:mysql://localhost:3306/MovieRentalDB";
+USERNAME = "root";
+PASSWORD = "your password";
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Make sure the database name matches exactly: **MovieRentalDB**
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### **3. Compile Backend Code**
 
-### Deployment
+Run this inside the backend directory:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```sh
+javac -cp "WEB-INF/lib/*;WEB-INF/classes" -d WEB-INF/classes src/com/movierental/model/*.java src/com/movierental/database/*.java src/com/movierental/dao/*.java src/com/movierental/servlet/*.java
+```
 
-### `npm run build` fails to minify
+This outputs `.class` files into:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+WEB-INF/classes/
+```
+
+---
+
+### **4. Deploy on Tomcat**
+
+Place your backend folder/WAR under:
+
+```
+Tomcat 9.0/webapps/
+```
+
+Start Tomcat, then visit:
+
+```
+http://localhost:8080/movie-renting/api/movies
+```
+
+You should now see JSON movie data.
+
+---
+
+## 🧰 Common SQL Operations
+
+### **Add a movie**
+
+```sql
+INSERT INTO Movies (Title, Year, Duration, NumOfCopies, DefaultPrice, Description, Rating, Genre)
+VALUES ('Demo Movie', 2024, 120, 5, 4.99, 'Description here', 'PG-13', 'Action');
+```
+
+### **Update a movie**
+
+```sql
+UPDATE Movies
+SET DefaultPrice = 7.99
+WHERE Title = 'Demo Movie';
+```
+
+### **Delete a movie**
+
+```sql
+DELETE FROM Movies
+WHERE Title = 'Demo Movie';
+```
+
+---
+
